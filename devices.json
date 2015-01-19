@@ -1,0 +1,50 @@
+[
+{"key": "thermostat.1",
+  "name": "Thermostat ID 1",
+  "attributes": {
+    "model": "v1",
+    "customer": "jones",
+    "region": "north"
+  },
+  "sensors": [
+    {"key": "temperature", "attributes": {"unit": "celsius"}},
+    {"key": "humidity"}
+  ]
+},
+{"key": "thermostat.2",
+  "name": "Thermostat ID 2",
+  "attributes": {
+    "model": "v1",
+    "customer": "jones",
+    "region": "north"
+  },
+  "sensors": [
+    {"key": "temperature", "attributes": {"unit": "celsius"}},
+    {"key": "humidity"}
+  ]
+},
+{"key": "thermostat.3",
+  "name": "Thermostat ID 3",
+  "attributes": {
+    "model": "v1",
+    "customer": "smith",
+    "region": "south"
+  },
+  "sensors": [
+    {"key": "temperature", "attributes": {"unit": "celsius"}},
+    {"key": "humidity"}
+  ]
+},
+{"key": "thermostat.4",
+  "name": "Thermostat ID 4",
+  "attributes": {
+    "model": "v1",
+    "customer": "willis",
+    "region": "south"
+  },
+  "sensors": [
+    {"key": "temperature", "attributes": {"unit": "celsius"}},
+    {"key": "humidity"}
+  ]
+}
+]
