@@ -2,7 +2,7 @@
 {"key": "thermostat.1",
   "name": "Thermostat ID 1",
   "attributes": {
-    "model": "v1",
+    "type": "thermostat",
     "customer": "jones",
     "region": "north"
   },
@@ -14,7 +14,7 @@
 {"key": "thermostat.2",
   "name": "Thermostat ID 2",
   "attributes": {
-    "model": "v1",
+    "type": "thermostat",
     "customer": "jones",
     "region": "north"
   },
@@ -26,7 +26,7 @@
 {"key": "thermostat.3",
   "name": "Thermostat ID 3",
   "attributes": {
-    "model": "v1",
+    "type": "thermostat",
     "customer": "smith",
     "region": "south"
   },
@@ -38,7 +38,7 @@
 {"key": "thermostat.4",
   "name": "Thermostat ID 4",
   "attributes": {
-    "model": "v1",
+    "type": "thermostat",
     "customer": "willis",
     "region": "south"
   },
