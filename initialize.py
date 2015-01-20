@@ -1,20 +1,25 @@
 import re
+import sys
 import os
 import json
+import getopt
 import requests
+import tempoiq.response
 import tempoiq.session
 from tempoiq.protocol.device import Device
 
+
 DEVICE_FILE = "devices.json"
 DATA_FILE = r"datapoints.*\.json"
-CREDENTIALS_FILE = "credentials.json"
 
 
 def delete_everything(creds):
     client = tempoiq.session.get_session(creds['host'],
                                          creds['key'],
                                          creds['secret'])
-    client.query(Device).delete()
+    res = client.query(Device).delete()
+    if res.successful != tempoiq.response.SUCCESS:
+        sys.exit(1)
 
 
 def load_devices_from_file(filename, creds):
@@ -30,6 +35,7 @@ def load_devices_from_file(filename, creds):
             else:
                 print("Error creating device {}: code {}"
                       .format(device['key'], res.status))
+                sys.exit(1)
 
 
 def load_datapoints_from_file(filename, creds):
@@ -39,10 +45,28 @@ def load_datapoints_from_file(filename, creds):
         payload = ''.join(point_file.readlines())
         res = requests.post(datapoint_url, data=payload,
                             auth=(creds['key'], creds['secret']))
-        print("Wrote data points: ", res.status_code)
+        if (res.status_code != 200):
+            sys.exit(1)
 
-def main():
-    creds = json.load(open(CREDENTIALS_FILE))
+def main(argv):
+    creds = {}
+    try:
+        opts, args = getopt.getopt(argv, "n:k:s:")
+    except getopt.GetoptError:
+        print('init_data.py -n <backend> -k <key> -s <secret>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == "-k":
+            creds['key'] = arg
+        elif opt == "-s":
+            creds['secret'] = arg
+        elif opt == "-n":
+            creds['host'] = arg
+
+    if not creds['host'].startswith('http'):
+        creds['host'] = 'https://' + creds['host']
+
+    print(creds)
     delete_everything(creds)
 
     data_path = os.path.join(os.getcwd(), "data")
@@ -59,4 +83,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
