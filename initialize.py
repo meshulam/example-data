@@ -4,35 +4,32 @@ import os
 import json
 import getopt
 import requests
-import tempoiq.response
-import tempoiq.session
-from tempoiq.protocol.device import Device
-
 
 DEVICE_FILE = "devices.json"
 DATA_FILE = r"datapoints.*\.json"
 
 
 def delete_everything(creds):
-    client = tempoiq.session.get_session(creds['host'],
-                                         creds['key'],
-                                         creds['secret'])
-    res = client.query(Device).delete()
-    if res.successful != tempoiq.response.SUCCESS:
+    delete_body = """{"search": {"select": "devices", "filters": {"""
+    delete_body += """"devices": "all"}},"find": {"quantifier":"all"}}"""
+
+    device_url = creds['host'] + '/v2/devices'
+
+    res = requests.delete(device_url, data=delete_body,
+                          auth=(creds['key'], creds['secret']))
+    if (res.status_code != 200):
         sys.exit(1)
 
 
 def load_devices_from_file(filename, creds):
-    client = tempoiq.session.get_session(creds['host'],
-                                         creds['key'],
-                                         creds['secret'])
+    device_url = creds['host'] + '/v2/devices'
+
     with open(filename) as device_file:
         devices = json.load(device_file)
         for device in devices:
-            res = client.create_device(device)
-            if res.status == 200:
-                print("Created device " + device['key'])
-            else:
+            res = requests.post(device_url, data=json.dumps(device),
+                                auth=(creds['key'], creds['secret']))
+            if (res.status_code != 200):
                 print("Error creating device {}: code {}"
                       .format(device['key'], res.status))
                 sys.exit(1)
