@@ -66,10 +66,10 @@ def main(argv):
     if not creds['host'].startswith('http'):
         creds['host'] = 'https://' + creds['host']
 
-    print(creds)
     delete_everything(creds)
 
-    data_path = os.path.join(os.getcwd(), "data")
+    script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    data_path = os.path.join(script_path, "data")
     files = os.listdir(data_path)
     data_files = []
     for f in files:
