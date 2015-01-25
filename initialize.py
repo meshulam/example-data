@@ -18,6 +18,7 @@ def delete_everything(creds):
     res = requests.delete(device_url, data=delete_body,
                           auth=(creds['key'], creds['secret']))
     if (res.status_code != 200):
+        print("Delete failed: {} - {}".format(res.status_code, res.text))
         sys.exit(1)
 
 
@@ -31,7 +32,7 @@ def load_devices_from_file(filename, creds):
                                 auth=(creds['key'], creds['secret']))
             if (res.status_code != 200):
                 print("Error creating device {}: code {}"
-                      .format(device['key'], res.status))
+                      .format(device['key'], res.status_code))
                 sys.exit(1)
 
 
@@ -43,6 +44,7 @@ def load_datapoints_from_file(filename, creds):
         res = requests.post(datapoint_url, data=payload,
                             auth=(creds['key'], creds['secret']))
         if (res.status_code != 200):
+            print("Data write failed: {} - {}".format(res.status_code, res.text))
             sys.exit(1)
 
 def main(argv):
@@ -77,7 +79,6 @@ def main(argv):
 
     for data_file in data_files:
         load_datapoints_from_file(data_file, creds)
-
 
 if __name__ == "__main__":
     main(sys.argv[1:])
