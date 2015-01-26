@@ -6,7 +6,9 @@ device filters to limit which devices should be exported from the backend.
 
 2. Run the command:
 
-    python export.py -n $BACKEND -k $KEY -s $SECRET
+```
+python export.py -n $BACKEND -k $KEY -s $SECRET
+```
 
 This creates two files: devices.json and datapoints.tsv.
 
@@ -17,7 +19,9 @@ as the import script.
 
 2. Run the command:
 
-    python import.py -n $BACKEND -k $KEY -s $SECRET
+```
+python import.py -n $BACKEND -k $KEY -s $SECRET
+```
 
 Note: datapoints can be split into multiple files, as long as they match
 the regex `datapoints[0-9]*.tsv`
