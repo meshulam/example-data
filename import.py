@@ -5,8 +5,9 @@ import json
 import getopt
 import requests
 
-DEVICE_FILE = "devices.json"
-DATA_FILE = r"datapoints.*\.json"
+DEVICE_FILE = r"devices\.json"
+DATA_FILE = r"datapoints[0-9]*\.tsv"
+DATA_PATH = '.'
 
 
 def delete_everything(creds):
@@ -31,21 +32,37 @@ def load_devices_from_file(filename, creds):
             res = requests.post(device_url, data=json.dumps(device),
                                 auth=(creds['key'], creds['secret']))
             if (res.status_code != 200):
-                print("Error creating device {}: code {}"
-                      .format(device['key'], res.status_code))
-                sys.exit(1)
+                if 'A device with that key already exists' in res.text:
+                    print("Skipping creating existing device {}"
+                          .format(device['key']))
+                else:
+                    print("Error creating device {}: code {}"
+                          .format(device['key'], res.status_code))
+                    sys.exit(1)
 
+def write_points(points, creds):
+    data_url = creds['host'] + '/v2/write/'
+    res = requests.post(data_url, data=json.dumps(points),
+                        auth=(creds['key'], creds['secret']))
+
+    if (res.status_code != 200):
+        print("Error writing data! code {}"
+              .format(res.status_code))
+        sys.exit(1)
 
 def load_datapoints_from_file(filename, creds):
-    datapoint_url = creds['host'] + '/v2/write'
-
+    points = {}
+    lineno = 0
     with open(filename) as point_file:
-        payload = ''.join(point_file.readlines())
-        res = requests.post(datapoint_url, data=payload,
-                            auth=(creds['key'], creds['secret']))
-        if (res.status_code != 200):
-            print("Data write failed: {} - {}".format(res.status_code, res.text))
-            sys.exit(1)
+        for line in point_file:
+            lineno += 1
+            (device, sensor, ts, val) = line.split('\t')
+            pts = points.setdefault(device, {}).setdefault(sensor, [])
+            pts.append({'t': ts, 'v': float(val)})
+
+            if lineno % 1000 == 0:
+                write_points(points, creds)
+                points = {}
 
 def main(argv):
     creds = {}
@@ -65,17 +82,13 @@ def main(argv):
     if not creds['host'].startswith('http'):
         creds['host'] = 'https://' + creds['host']
 
-    delete_everything(creds)
-
-    script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-    data_path = os.path.join(script_path, "data")
-    files = os.listdir(data_path)
+    files = os.listdir(DATA_PATH)
     data_files = []
     for f in files:
         if re.match(DATA_FILE, f):
-            data_files.append(os.path.join(data_path, f))
-        if f == DEVICE_FILE:
-            load_devices_from_file(os.path.join(data_path, f), creds)
+            data_files.append(os.path.join(DATA_PATH, f))
+        if re.match(DEVICE_FILE, f):
+            load_devices_from_file(os.path.join(DATA_PATH, f), creds)
 
     for data_file in data_files:
         load_datapoints_from_file(data_file, creds)

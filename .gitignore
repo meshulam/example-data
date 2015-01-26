@@ -1,1 +1,2 @@
-credentials.json
+datapoints*.tsv
+devices.json
