@@ -10,7 +10,7 @@ import datetime
 import json
 
 DEFAULT_START = datetime.datetime(2000, 1, 1)
-DEFAULT_END = datetime.datetime(2016, 1, 1)
+DEFAULT_END = datetime.datetime(2018, 1, 1)
 DEFAULT_FILTERS = []
 # Add device filters like:
 #DEFAULT_FILTERS.append(Device.attributes['region'] == 'north')
@@ -29,6 +29,12 @@ class Exporter(object):
         for filt in DEFAULT_FILTERS:
             req = req.filter(filt)
         response = req.read()
+
+        if response.successful != tempoiq.response.SUCCESS:
+            print("Error reading devices {}-{}"
+                  .format(response.status, response.reason))
+            return
+
         for device in response.data:
             self.devices.append(device)
 
@@ -54,6 +60,10 @@ class Exporter(object):
         res = self.client.query(Sensor) \
                          .filter(Device.key == device.key) \
                          .read(start=start, end=end)
+        if res.successful != tempoiq.response.SUCCESS:
+            print("Error reading data from device {}: {}-{}"
+                  .format(device.key, res.status, res.reason))
+            return
 
         for row in res.data:
             for ((device, sensor), value) in row:
